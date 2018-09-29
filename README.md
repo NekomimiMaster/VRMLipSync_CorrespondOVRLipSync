@@ -2,6 +2,7 @@
 OVRLipSyncをVRMアバターに適用させます。<br>
 ・実行中に読み込んだVRMアバターに対して、OVRLipSyncを動かすのに必要なコンポーネントを動的にアタッチします。<br>
 ・OVRLipSyncContextMorphTargetからLipSyncの状態を読み取り、VRMのLipSyncとして適用します。<br>
+・詳細は<a href="https://qiita.com/Nekomasu/items/104808f7ecd26f1e362a">VRMモデルをOVRLipSyncに対応させる方法</a> に載ってます。<br>
 <br>
 # 下記のライブラリに依存しています。<br>
 １．<a href="https://developer.oculus.com/downloads/package/oculus-lipsync-unity/">Oculus Lipsync Unity 1.28.0</a><br>
