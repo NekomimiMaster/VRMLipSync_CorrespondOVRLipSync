@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using VRM;
@@ -12,16 +13,14 @@ public class VRMLipSync : MonoBehaviour {
     private string LipSyncTargetName = "VRM";
 
     private VRMBlendShapeProxy VrmProxy;
-    private GameObject VRMavater;
+    private GameObject VrmAvatar;
+    private OVRLipSyncContextMorphTarget morphTarget;
 
     //LipSyncの感度を調整 0.1が鈍感 2.0が敏感
     [SerializeField]
     [Range(0.1f, 2.0f)]
     private float LipSyncSensitivity = 1.0f;
     
-    private int LipType;
-    private float LipValue;
-
     //trueならLipSynkが有効 falseで無効
     [SerializeField]
     private bool VrmLipSyncIsActive;
@@ -35,74 +34,64 @@ public class VRMLipSync : MonoBehaviour {
     public void VrmLipSyncSetup()
     {
         //LipSyncTargetNameでVRMを検索、Proxyを取得できなければセットアップの終了
-        VrmProxy = GetVrmProxy(LipSyncTargetName);
+        VrmAvatar = GameObject.Find(LipSyncTargetName);
+        VrmProxy = GetVrmProxy(VrmAvatar);
         if (VrmProxy == null) { return; }
 
-        if (VRMavater.GetComponent<AudioSource>() == null)
+        if (VrmAvatar.GetComponent<AudioSource>() == null)
         {
-            VRMavater.AddComponent<AudioSource>();
+            VrmAvatar.AddComponent<AudioSource>();
         }
 
-        if (VRMavater.GetComponent<OVRLipSyncMicInput>() == null)
+        if (VrmAvatar.GetComponent<OVRLipSyncMicInput>() == null)
         {
-            VRMavater.AddComponent<OVRLipSyncMicInput>();
+            VrmAvatar.AddComponent<OVRLipSyncMicInput>();
         }
 
-        if (VRMavater.GetComponent<OVRLipSyncContext>() == null)
+        if (VrmAvatar.GetComponent<OVRLipSyncContext>() == null)
         {
-            VRMavater.AddComponent<OVRLipSyncContext>();
+            VrmAvatar.AddComponent<OVRLipSyncContext>();
         }
 
-        if (VRMavater.GetComponent<OVRLipSyncContextMorphTarget>() == null)
+        if (VrmAvatar.GetComponent<OVRLipSyncContextMorphTarget>() == null)
         {
-            VRMavater.AddComponent<OVRLipSyncContextMorphTarget>();
+            VrmAvatar.AddComponent<OVRLipSyncContextMorphTarget>();
         }
+
+        morphTarget = VrmAvatar.GetComponent<OVRLipSyncContextMorphTarget>();
         Debug.Log("VRMavaterにLipSyncをセットアップしました。");
     }
-
+    
     //nameでVRMを検索してVRMBlendShapeProxyを取得する。
-    private VRMBlendShapeProxy GetVrmProxy(string name)
+    private VRMBlendShapeProxy GetVrmProxy(GameObject vrmAvatar)
     {
-        //nameで検索して見つからなければ終了
-        if (GameObject.Find(name) == true)
+        VRMBlendShapeProxy vrmProxy = null;
+
+        vrmProxy = vrmAvatar.GetComponent<VRMBlendShapeProxy>();
+        //存在しない場合のみチェック
+        if (vrmProxy == null)
         {
-            VRMavater = GameObject.Find(name);
-        }
-        else if(GameObject.Find(name) == false)
-        {
-            Debug.Log(name + " は見つかりませんでした。VRMのGameObjectを " + name + " に変更してください。");
+            Debug.Log("VRM に VRMBlendShapeProxy がアタッチされていません。再度セットアップしてください");
             return null;
         }
-
-        //検索したVRMにVRMBlendShapeProxyがアタッチされてなければ終了
-        if (VRMavater.GetComponent<VRMBlendShapeProxy>() == true)
-        {
-            VrmProxy = VRMavater.GetComponent<VRMBlendShapeProxy>();
-        }
-        else if (VRMavater.GetComponent<VRMBlendShapeProxy>() == false)
-        {
-            Debug.Log(name + " に VRMBlendShapeProxy がアタッチされていません。再度セットアップしてください");
-            return null;
-        }
-
-        //VRMからVRMBlendShapeProxyを取得
-        VrmProxy = VRMavater.GetComponent<VRMBlendShapeProxy>();
-        Debug.Log(name + " の VRMBlendShapeProxy を取得しました");
-        return VrmProxy;
+        Debug.Log("VRM の VRMBlendShapeProxy を取得しました");
+        return vrmProxy;
     }
 
     //OVRLiySyncの処理を VRM の VRMBlendShapeProxy に対応させる
     private void LipSyncConversion()
     {
+        int LipType = 0;
+        float LipValue = 0.0f;
         float Value;
         // VRMLipValue[0] は「無音時に1を返す処理」の為、iに0を含めない
         for (int i = 1; i < 15; i++)
         {
-            Value = VRMavater.GetComponent<OVRLipSyncContextMorphTarget>().VRMLipValue[i];
+            Value = morphTarget.VRMLipValue[i];
             //1番大きい値の時にLipTypeを更新
-            if (LipValue < Value)
+            if (LipValue < Value && i != 0)
             {
-                LipValue = VRMavater.GetComponent<OVRLipSyncContextMorphTarget>().VRMLipValue[i];
+                LipValue = Value;
                 LipType = i;
             }
         }
@@ -111,28 +100,18 @@ public class VRMLipSync : MonoBehaviour {
         {
             case 10:
                 VrmProxy.SetValue(BlendShapePreset.A, LipValue / LipSyncSensitivity);
-                Value = 0.0f;
-                LipValue = 0.0f;
                 break;
             case 12:
                 VrmProxy.SetValue(BlendShapePreset.I, LipValue / LipSyncSensitivity);
-                Value = 0.0f;
-                LipValue = 0.0f;
                 break;
             case 14:
                 VrmProxy.SetValue(BlendShapePreset.U, LipValue / LipSyncSensitivity);
-                Value = 0.0f;
-                LipValue = 0.0f;
                 break;
             case 11:
                 VrmProxy.SetValue(BlendShapePreset.E, LipValue / LipSyncSensitivity);
-                Value = 0.0f;
-                LipValue = 0.0f;
                 break;
             case 13:
                 VrmProxy.SetValue(BlendShapePreset.O, LipValue / LipSyncSensitivity);
-                Value = 0.0f;
-                LipValue = 0.0f;
                 break;
             default:
                 VrmProxy.SetValue(BlendShapePreset.A, 0);
