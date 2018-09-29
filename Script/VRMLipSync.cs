@@ -6,7 +6,7 @@ using VRM;
 
 public class VRMLipSync : MonoBehaviour {
 
-    //VrmLipSyncTargetObj にはLipSyncを適用させるVRMアバターのGameObject名を入れます。
+    //LipSyncTargetNameにはLipSyncを適用させるVRMアバターのGameObject名を入れます。
     //公式サンプルのVRMローダーでは VRM という名前でシーンに配置されるので...
     //デフォルト設定は VRM になってます。
     [SerializeField]
@@ -59,7 +59,7 @@ public class VRMLipSync : MonoBehaviour {
         }
 
         morphTarget = VrmAvatar.GetComponent<OVRLipSyncContextMorphTarget>();
-        Debug.Log("VRMavaterにLipSyncをセットアップしました。");
+        Debug.Log("VrmAvatarにLipSyncをセットアップしました。");
     }
     
     //nameでVRMを検索してVRMBlendShapeProxyを取得する。
@@ -119,8 +119,6 @@ public class VRMLipSync : MonoBehaviour {
                 VrmProxy.SetValue(BlendShapePreset.U, 0);
                 VrmProxy.SetValue(BlendShapePreset.E, 0);
                 VrmProxy.SetValue(BlendShapePreset.O, 0);
-                Value = 0.0f;
-                LipValue = 0.0f;
                 break;
         }
     }
