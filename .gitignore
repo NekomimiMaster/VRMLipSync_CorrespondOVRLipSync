@@ -20,11 +20,14 @@ ExportedObj/
 
 # Unity3D generated meta files
 *.pidb.meta
-*Script.meta
 *.cs.meta
 
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
+VRMLipSync.cs.meta
+README.md.meta
+Script.meta
+VRMLipSync_CorrespondOVRLipSync.meta
 
 # Builds
 *.apk
