@@ -12,4 +12,4 @@ OVRLipSyncをVRMアバターに適用させます。<br>
 # 使用方法等<br>
 <a href="https://qiita.com/Nekomasu/items/104808f7ecd26f1e362a">VRMモデルをOVRLipSyncに対応させる方法</a> を参考にしてセットアップしてください。<br>
 また、実行中にVRMを読み込んだ場合は「L」キーを押すと、処理がはじまります。<br>
-(もしわ、VrmLipSyncSetup()をUIなどから呼んでください。)<br>
+(もしくは、VrmLipSyncSetup()をUIなどから呼んでください。)<br>
